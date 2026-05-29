@@ -1,0 +1,8 @@
+name = "amkyawdev-tts-api"
+main = "worker.js"
+compatibility_date = "2026-05-29"
+
+# Optional: Set fallback API keys as environment variables
+# [vars]
+# GEMINI_API_KEY = "your-fallback-gemini-key"
+# GROQ_API_KEY = "your-fallback-groq-key"
