@@ -92,6 +92,47 @@ This allows users to use default keys if they haven't configured their own.
 
 Your API keys are stored securely in your browser's `localStorage` and are only sent directly to the respective API providers (Google Gemini or Groq). They are never sent to any intermediate server.
 
+### AmkyawDev API Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Vue_App as Vue 3 App
+    participant Worker as Cloudflare Worker
+    participant Gemini as Gemini API
+    participant Groq as Groq API
+
+    User->>Vue_App: Enter text & API keys
+    Vue_App->>Vue_App: Store keys in localStorage
+
+    Note over Vue_App:Gemini TTS Flow
+
+    User->>Vue_App: Request TTS with text
+    Vue_App->>Worker: POST /api/tts + X-Gemini-Key header
+    Worker->>Gemini: Forward request with API key
+    Gemini-->>Worker: Return audio data
+    Worker-->>Vue_App: Return audio with CORS headers
+    Vue_App-->>User: Play/Download audio
+
+    Note over Vue_App:Groq Translation Flow
+
+    User->>Vue_App: Request translation
+    Vue_App->>Worker: POST /api/translate + X-Groq-Key header
+    Worker->>Groq: Forward request with Bearer token
+    Groq-->>Worker: Return translation
+    Worker-->>Vue_App: Return response with CORS headers
+    Vue_App-->>User: Display translation
+```
+
+### Security Features
+
+| Feature | Description |
+|---------|-------------|
+| Lock | API keys never leave the browser |
+| Shield | All API calls go through Cloudflare Worker |
+| Check | Proper CORS headers for cross-origin requests |
+| Key | Show/hide API keys in input fields |
+
 ## Deployment
 
 ### Automatic (GitHub Actions)
