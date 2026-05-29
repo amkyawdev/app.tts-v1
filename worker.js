@@ -13,6 +13,24 @@ export default {
       });
     }
 
+    // Root route - API status
+    if (url.pathname === "/" || url.pathname === "") {
+      return new Response(JSON.stringify({
+        status: "ok",
+        service: "AmkyawDev TTS API",
+        version: "1.0.0",
+        endpoints: {
+          "/api/tts": "POST - Generate text-to-speech",
+          "/api/translate": "POST - Translate text"
+        }
+      }, null, 2), {
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      });
+    }
+
     // Route: TTS via Gemini API
     if (url.pathname === "/api/tts" && request.method === "POST") {
       const body = await request.json();
@@ -22,14 +40,16 @@ export default {
         return makeCorsResponse(JSON.stringify({ error: "Missing Gemini API Key" }), 400);
       }
 
-      // Call Gemini TTS Endpoint
-      const geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:cleanRoomsTextToSpeech?key=${apiKey}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: body.text, voiceConfig: body.voiceConfig })
-      });
-      
-      return makeCorsResponse(geminiResponse.body, geminiResponse.status, geminiResponse.headers);
+      try {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:cleanRoomsTextToSpeech?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        return makeCorsResponse(response.body, response.status, response.headers);
+      } catch (err) {
+        return makeCorsResponse(JSON.stringify({ error: err.message }), 500);
+      }
     }
 
     // Route: Translate via Groq
@@ -41,23 +61,26 @@ export default {
         return makeCorsResponse(JSON.stringify({ error: "Missing Groq API Key" }), 400);
       }
 
-      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          model: "llama3-8b-8192",
-          messages: [
-            { role: "system", content: `Translate the text to ${body.targetLanguage}. Only return the translation.` },
-            { role: "user", content: body.text }
-          ]
-        })
-      });
-
-      const data = await groqResponse.json();
-      return makeCorsResponse(JSON.stringify(data), groqResponse.status);
+      try {
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "llama3-8b-8192",
+            messages: [
+              { role: "system", content: `Translate to ${body.targetLanguage}. Only return translation.` },
+              { role: "user", content: body.text }
+            ]
+          })
+        });
+        const data = await response.json();
+        return makeCorsResponse(JSON.stringify(data), response.status);
+      } catch (err) {
+        return makeCorsResponse(JSON.stringify({ error: err.message }), 500);
+      }
     }
 
     return makeCorsResponse(JSON.stringify({ error: "Not Found" }), 404);
