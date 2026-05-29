@@ -5,15 +5,27 @@ import { useApiStore } from '@/store/apiStore'
 const apiStore = useApiStore()
 
 const text = ref('')
-const targetLanguage = ref('Spanish')
+const targetLanguage = ref('myanmar')
 const isLoading = ref(false)
 const translation = ref('')
 const error = ref('')
 
 const languages = [
-  'Spanish', 'French', 'German', 'Italian', 'Portuguese', 
-  'Dutch', 'Polish', 'Russian', 'Japanese', 'Korean',
-  'Chinese', 'Arabic', 'Hindi', 'Thai', 'Vietnamese'
+  { code: 'myanmar', name: '🇲🇲 Myanmar', label: 'Myanmar' },
+  { code: 'english', name: '🇬🇧 English', label: 'English' },
+  { code: 'thai', name: '🇹🇭 Thai', label: 'Thai' },
+  { code: 'japanese', name: '🇯🇵 Japanese', label: 'Japanese' },
+  { code: 'korean', name: '🇰🇷 Korean', label: 'Korean' },
+  { code: 'chinese', name: '🇨🇳 Chinese', label: 'Chinese' },
+  { code: 'spanish', name: '🇪🇸 Spanish', label: 'Spanish' },
+  { code: 'french', name: '🇫🇷 French', label: 'French' },
+  { code: 'german', name: '🇩🇪 German', label: 'German' },
+  { code: 'italian', name: '🇮🇹 Italian', label: 'Italian' },
+  { code: 'portuguese', name: '🇵🇹 Portuguese', label: 'Portuguese' },
+  { code: 'russian', name: '🇷🇺 Russian', label: 'Russian' },
+  { code: 'arabic', name: '🇸🇦 Arabic', label: 'Arabic' },
+  { code: 'hindi', name: '🇮🇳 Hindi', label: 'Hindi' },
+  { code: 'vietnamese', name: '🇻🇳 Vietnamese', label: 'Vietnamese' }
 ]
 
 async function translateText() {
@@ -87,9 +99,9 @@ function copyTranslation() {
         </div>
 
         <div class="options-column">
-          <label for="language-select">Target Language</label>
+          <label for="language-select">🌍 Target Language</label>
           <select id="language-select" v-model="targetLanguage" :disabled="isLoading">
-            <option v-for="lang in languages" :key="lang" :value="lang">{{ lang }}</option>
+            <option v-for="lang in languages" :key="lang.code" :value="lang.code">{{ lang.name }}</option>
           </select>
         </div>
       </div>

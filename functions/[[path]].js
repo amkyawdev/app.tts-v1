@@ -1,7 +1,7 @@
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
-    
+
     // Handle CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, {
@@ -16,18 +16,34 @@ export default {
     // TTS route
     if (url.pathname === "/api/tts" && request.method === "POST") {
       const body = await request.json();
-      const apiKey = request.headers.get("X-Gemini-Key") || env.GEMINI_API_KEY; 
-      
+      const apiKey = request.headers.get("X-Gemini-Key") || env.GEMINI_API_KEY;
+
       if (!apiKey) {
         return makeCorsResponse(JSON.stringify({ error: "Missing API Key" }), 400);
       }
 
       try {
+        // Build TTS request with language and narrator
+        const ttsRequest = {
+          text: body.text
+        };
+        
+        // Add language preference if specified
+        if (body.language) {
+          ttsRequest.language = body.language;
+        }
+        
+        // Add narrator preference if specified
+        if (body.narrator) {
+          ttsRequest.narrator = body.narrator;
+        }
+
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:cleanRoomsTextToSpeech?key=${apiKey}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body)
+          body: JSON.stringify(ttsRequest)
         });
+        
         return makeCorsResponse(response.body, response.status, response.headers);
       } catch (err) {
         return makeCorsResponse(JSON.stringify({ error: err.message }), 500);
@@ -40,10 +56,31 @@ export default {
       const apiKey = request.headers.get("X-Groq-Key") || env.GROQ_API_KEY;
 
       if (!apiKey) {
-        return makeCorsResponse(JSON.stringify({ error: "Missing API Key" }), 400);
+        return makeCorsResponse(JSON.stringify({ error: "Missing Groq API Key" }), 400);
       }
 
       try {
+        // Map language codes to proper names for translation
+        const languageNames = {
+          'myanmar': 'Burmese',
+          'english': 'English',
+          'thai': 'Thai',
+          'japanese': 'Japanese',
+          'korean': 'Korean',
+          'chinese': 'Chinese',
+          'spanish': 'Spanish',
+          'french': 'French',
+          'german': 'German',
+          'italian': 'Italian',
+          'portuguese': 'Portuguese',
+          'russian': 'Russian',
+          'arabic': 'Arabic',
+          'hindi': 'Hindi',
+          'vietnamese': 'Vietnamese'
+        };
+        
+        const targetLang = languageNames[body.targetLanguage] || body.targetLanguage;
+
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -53,7 +90,7 @@ export default {
           body: JSON.stringify({
             model: "llama3-8b-8192",
             messages: [
-              { role: "system", content: `Translate to ${body.targetLanguage}. Only return translation.` },
+              { role: "system", content: `Translate to ${targetLang}. Only return the translation, no explanations.` },
               { role: "user", content: body.text }
             ]
           })
