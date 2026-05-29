@@ -1,8 +1,7 @@
 name = "app-tts-v1"
-main = "worker.js"
 compatibility_date = "2026-05-29"
+pages_build_output_dir = "./dist"
 
-# Optional: Set fallback API keys as environment variables
-# [vars]
-# GEMINI_API_KEY = "your-fallback-gemini-key"
-# GROQ_API_KEY = "your-fallback-groq-key"
+[vars]
+# GEMINI_API_KEY = "your-key"
+# GROQ_API_KEY = "your-key"
