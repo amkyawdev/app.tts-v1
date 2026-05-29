@@ -1,5 +1,35 @@
 :root {
   --font-family: system-ui, -apple-system, sans-serif;
+  
+  /* Color palette */
+  --color-primary: #3b82f6;
+  --color-primary-faded: #3b82f620;
+  --color-surface: #ffffff;
+  --color-canvas: #f8fafc;
+  --color-border: #e2e8f0;
+  --color-text: #1e293b;
+  --color-muted: #64748b;
+  --color-inverse: #ffffff;
+  
+  /* Semantic colors */
+  --color-error: #ef4444;
+  --color-error-faded: #ef444420;
+  --color-success: #22c55e;
+  --color-success-faded: #22c55e20;
+  --color-warning: #f59e0b;
+  --color-warning-faded: #f59e0b20;
+  
+  /* Spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  
+  /* Border radius */
+  --radius: 0.375rem;
+  --radius-lg: 0.5rem;
 }
 
 body {
